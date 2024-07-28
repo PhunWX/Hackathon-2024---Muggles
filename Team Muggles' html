@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile Database</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    select {
+      font-size: 1em;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    #info-table {
+      margin-top: 20px;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #info-table td {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Employee Profile Database</h1>
+  <form>
+    <label for="name-select">Select a name:</label>
+    <select id="name-select" onchange="displaySelectedInfo()">
+      <option value="">Choose a name</option>
+    </select>
+  </form>
+  <br>
+  <table id="info-table">
+    <thead>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Full Name</td>
+        <td id="name-cell">---</td>
+      </tr>
+      <tr>
+        <td>Identity Card Number / No.Passport</td>
+        <td id="id-cell">---</td>
+      </tr>
+      <tr>
+        <td>Gender</td>
+        <td id="gender-cell">---</td>
+      </tr>
+      <tr>
+        <td>Marital Status</td>
+        <td id="status-cell">---</td>
+      </tr>
+      <tr>
+        <td>Phone Number</td>
+        <td id="phone-cell">---</td>
+      </tr>
+      <tr>
+        <td>Personal Email</td>
+        <td id="email-cell">---</td>
+      </tr>
+      <tr>
+        <td>Residential Address</td>
+        <td id="address-cell">---</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    // Function to populate the dropdown with names
+    function populateDropdown(data) {
+      var selectElement = document.getElementById('name-select');
+      selectElement.innerHTML = ''; // Clear existing options
+      selectElement.appendChild(new Option('Choose a name', '')); // Add default option
+
+      data.forEach(function(item) {
+        var option = document.createElement('option');
+        option.textContent = item.name; // Set the name text
+        option.value = item.name; // Set the name as the value
+        selectElement.appendChild(option);
+      });
+    }
+
+    // Function to fetch names and IDs from Google Sheets and populate the dropdown
+    function fetchNamesAndIds() {
+      google.script.run.withSuccessHandler(populateDropdown).getNamesAndIdsFromSheet();
+    }
+
+    // Function to display the selected employee's details in the table
+    function displaySelectedInfo() {
+      var selectedName = document.getElementById('name-select').value;
+
+      if (selectedName) {
+        google.script.run.withSuccessHandler(function(data) {
+          var nameCell = document.getElementById('name-cell');
+          var idCell = document.getElementById('id-cell');
+          var genderCell = document.getElementById('gender-cell');
+          var statusCell = document.getElementById('status-cell');
+          var phoneCell = document.getElementById('phone-cell');
+          var emailCell = document.getElementById('email-cell');
+          var addressCell = document.getElementById('address-cell');
+
+          // Find the selected name's data
+          var selectedData = data.find(item => item.name === selectedName);
+
+          if (selectedData) {
+            nameCell.textContent = selectedData.name;
+            idCell.textContent = selectedData.id;
+            genderCell.textContent = selectedData.gender;
+            statusCell.textContent = selectedData.status;
+            phoneCell.textContent = selectedData.phone;
+            emailCell.textContent = selectedData.email;
+            addressCell.textContent = selectedData.address;
+          } else {
+            nameCell.textContent = 'Not Found';
+            idCell.textContent = 'Not Found';
+            genderCell.textContent = 'Not Found';
+            statusCell.textContent = 'Not Found';
+            phoneCell.textContent = 'Not Found';
+            emailCell.textContent = 'Not Found';
+            addressCell.textContent = 'Not Found';
+          }
+        }).getNamesAndIdsFromSheet();
+      } else {
+        document.getElementById('name-cell').textContent = '---';
+        document.getElementById('id-cell').textContent = '---';
+        document.getElementById('gender-cell').textContent = '---';
+        document.getElementById('status-cell').textContent = '---';
+        document.getElementById('phone-cell').textContent = '---';
+        document.getElementById('email-cell').textContent = '---';
+        document.getElementById('address-cell').textContent = '---';
+      }
+    }
+
+    // Load names and populate the dropdown when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchNamesAndIds(); // Fetch names and IDs from Google Sheets
+    });
+  </script>
+</body>
+</html>
