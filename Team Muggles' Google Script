@@ -1,0 +1,64 @@
+// Function to serve the HTML file
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Display');
+}
+
+// Fetch names and IDs from the sheet
+function getNamesAndIdsFromSheet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form responses 1');
+  var range = sheet.getRange('B2:H7'); // Adjust the range to include both names and IDs
+  var values = range.getValues(); // Get the data from the range
+
+  var data = [];
+  for (var i = 0; i < values.length; i++) {
+    var name = values[i][0]; // Name should be in column B (index 0)
+    var id = values[i][1]; // ID should be in column C (index 1)
+    var gender = values[i][2]; // Gender should be in column D (index 2)
+    var status = values[i][3]; // Status should be in column E (index 3)
+    var phone = values[i][4]; // Phone should be in column F (index 4)
+    var email = values[i][5]; // Email should be in column G (index 5)
+    var address = values[i][6]; // Address should be in column H (index 6)
+
+    if (id && name) { // Ensure both ID and name are not empty
+      data.push({
+        name: name,
+        id: id,
+        gender: gender,
+        status: status,
+        phone: phone,
+        email: email,
+        address: address,
+      });
+    }
+  }
+
+  // Sort data alphabetically by name
+  data.sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+  });
+
+  return data; // Return the array of objects with IDs and names
+}
+
+// Fetch all details for the selected name
+function getDataForName(selectedName) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form responses 1');
+  var range = sheet.getRange('B2:H7'); // Adjust range to include all relevant columns
+  var values = range.getValues(); // Get the data from the range
+
+  for (var i = 0; i < values.length; i++) {
+    if (values[i][0] === selectedName) { // Match the name (names are in column B, index 0)
+      return {
+        name: values[i][0],
+        id: values[i][1],
+        gender: values[i][2],
+        status: values[i][3],
+        phone: values[i][4],
+        email: values[i][5],
+        address: values[i][6]
+      };
+    }
+  }
+
+  return 'Data not found'; // Return this if the data is not found
+}
